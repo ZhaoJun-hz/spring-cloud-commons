@@ -26,9 +26,12 @@ import org.springframework.core.annotation.Order;
  * @author Spencer Gibb
  */
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
+// 继承了SpringFactoryImportSelector，泛型传入注解类EnableCircuitBreaker
 public class EnableCircuitBreakerImportSelector
 		extends SpringFactoryImportSelector<EnableCircuitBreaker> {
 
+
+	// 获取断路器开关配置
 	@Override
 	protected boolean isEnabled() {
 		return getEnvironment().getProperty("spring.cloud.circuit.breaker.enabled",

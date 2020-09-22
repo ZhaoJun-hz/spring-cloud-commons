@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+// 导入了一个EnableCircuitBreakerImportSelector
 @Import(EnableCircuitBreakerImportSelector.class)
 public @interface EnableCircuitBreaker {
 

@@ -53,11 +53,16 @@ public abstract class SpringFactoryImportSelector<T>
 	private Environment environment;
 
 	@SuppressWarnings("unchecked")
+	// annotationClass，获取到子类传递到父类的泛型，就是EnableCircuitBreaker注解类
 	protected SpringFactoryImportSelector() {
 		this.annotationClass = (Class<T>) GenericTypeResolver
 				.resolveTypeArgument(this.getClass(), SpringFactoryImportSelector.class);
 	}
 
+	// selectImports方法中最终目的是要根据传进来的泛型全限定类名作为key去spring.factory文件查找对应的配置类，然后注入
+	// org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
+	// org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
+	// 会注入HystrixCircuitBreakerConfiguration
 	@Override
 	public String[] selectImports(AnnotationMetadata metadata) {
 		if (!isEnabled()) {
