@@ -43,6 +43,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Gang Li
  */
 @Configuration
+// 只有存在RestTemplate这个类的时候该配置类才装配生效
 @ConditionalOnClass(RestTemplate.class)
 @ConditionalOnBean(LoadBalancerClient.class)
 @EnableConfigurationProperties(LoadBalancerRetryProperties.class)
@@ -50,6 +51,7 @@ public class LoadBalancerAutoConfiguration {
 
 	@LoadBalanced
 	@Autowired(required = false)
+	// 声明了一个List<RestTemplate>集合对象，此处会注入那些添加了LoadBalanced注解的RestTemplate对象，统一这里集中
 	private List<RestTemplate> restTemplates = Collections.emptyList();
 
 	@Autowired(required = false)
@@ -58,9 +60,12 @@ public class LoadBalancerAutoConfiguration {
 	@Bean
 	public SmartInitializingSingleton loadBalancedRestTemplateInitializerDeprecated(
 			final ObjectProvider<List<RestTemplateCustomizer>> restTemplateCustomizers) {
+		// 使用定制器给集合中的每一个RestTemplate对象添加一个拦截器
+		// 遍历
 		return () -> restTemplateCustomizers.ifAvailable(customizers -> {
 			for (RestTemplate restTemplate : LoadBalancerAutoConfiguration.this.restTemplates) {
 				for (RestTemplateCustomizer customizer : customizers) {
+					// 定制
 					customizer.customize(restTemplate);
 				}
 			}
@@ -85,6 +90,7 @@ public class LoadBalancerAutoConfiguration {
 			return new LoadBalancerInterceptor(loadBalancerClient, requestFactory);
 		}
 
+
 		@Bean
 		@ConditionalOnMissingBean
 		public RestTemplateCustomizer restTemplateCustomizer(
@@ -92,6 +98,7 @@ public class LoadBalancerAutoConfiguration {
 			return restTemplate -> {
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
 						restTemplate.getInterceptors());
+				// 向容器注入restTemplate定制器，给restTemplate对象添加一个拦截器loadBalancerInterceptor
 				list.add(loadBalancerInterceptor);
 				restTemplate.setInterceptors(list);
 			};

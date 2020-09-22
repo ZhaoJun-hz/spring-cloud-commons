@@ -51,10 +51,14 @@ public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor {
 	@Override
 	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body,
 			final ClientHttpRequestExecution execution) throws IOException {
+		// 获取拦截到的请求uri，如http://service-resume/resume/openstate/
 		final URI originalUri = request.getURI();
+		// 获取服务名，service-resume
 		String serviceName = originalUri.getHost();
 		Assert.state(serviceName != null,
 				"Request URI does not contain a valid hostname: " + originalUri);
+		// 剩下的负载均衡的事情，交给LoadBalancerClient对象负责执行，具体实现是RibbonLoadBalancerClient对象
+		// RibbonLoadBalancerClient在RibbonAutoConfiguration注入
 		return this.loadBalancer.execute(serviceName,
 				this.requestFactory.createRequest(request, body, execution));
 	}
